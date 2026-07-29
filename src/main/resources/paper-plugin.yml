@@ -1,0 +1,6 @@
+name: ServerUtils
+version: '${version}'
+
+main: ru.vikhrenko.serverUtils.ServerUtils
+api-version: '26.1.2'
+load: POSTWORLD
