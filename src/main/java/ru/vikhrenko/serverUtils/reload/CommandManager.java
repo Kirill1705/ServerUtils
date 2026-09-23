@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.plugin.Plugin;
 import ru.vikhrenko.serverUtils.reload.Reloadable;
 
@@ -22,16 +23,29 @@ public class CommandManager {
                             return Command.SINGLE_SUCCESS;
                         }
                         plugin.reloadConfig();
-                        reload(repositories, plugin);
+                        boolean success = reload(repositories, plugin);
+                        if (success) {
+                            context.getSource().getSender().sendMessage(Component.text("No exceptions was thrown").color(NamedTextColor.GREEN));
+                        }
+                        else {
+                            context.getSource().getSender().sendMessage(Component.text("Some exceptions was thrown, see more in console").color(NamedTextColor.YELLOW));
+                        }
                         return Command.SINGLE_SUCCESS;
                     }).build());
         });
     }
 
-    private void reload(Collection<ru.vikhrenko.serverUtils.reload.Reloadable> repositories, Plugin plugin) {
+    private boolean reload(Collection<ru.vikhrenko.serverUtils.reload.Reloadable> repositories, Plugin plugin) {
         Path path = plugin.getDataPath().resolve(Path.of("config.yml"));
+        boolean success = true;
         for (Reloadable reloadable: repositories) {
-            reloadable.reload(path);
+            try {
+                reloadable.reload(path);
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                success = false;
+            }
         }
+        return success;
     }
 }
