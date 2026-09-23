@@ -22,6 +22,10 @@ public record ImmutableBox(Point begin, Point end) implements Iterable<Point> {
         return end;
     }
 
+    public ImmutableBox shift(Point offset) {
+        return new ImmutableBox(begin.add(offset), end.add(offset));
+    }
+
     public @NotNull Iterator<Point> iterator() {
         return new BlockPositionIterator(begin, end);
     }
